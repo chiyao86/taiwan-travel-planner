@@ -5,9 +5,6 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import vectorbt as vbt
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config import REPORT_DIR
 
 
@@ -343,43 +340,3 @@ def plot_backtest_interactive(portfolio: vbt.Portfolio, symbol: str, strategy: s
     fig.update_xaxes(title_text="日期", row=3, col=1)
     
     return fig
-
-
-def calculate_simple_profit(buy_price: float, sell_price: float, quantity: int = 100,
-                            fees_rate: float = 0.001425) -> dict:
-    """
-    簡單計算買賣損益（考慮手續費）
-    
-    Args:
-        buy_price: 買入價格
-        sell_price: 賣出價格
-        quantity: 交易數量
-        fees_rate: 手續費率
-    
-    Returns:
-        包含損益資訊的字典
-    """
-    buy_cost = buy_price * quantity
-    buy_fees = buy_cost * fees_rate
-    total_buy = buy_cost + buy_fees
-    
-    sell_revenue = sell_price * quantity
-    sell_fees = sell_revenue * fees_rate
-    total_sell = sell_revenue - sell_fees
-    
-    profit = total_sell - total_buy
-    profit_pct = (profit / total_buy) * 100
-    
-    return {
-        'buy_price': buy_price,
-        'sell_price': sell_price,
-        'quantity': quantity,
-        'buy_cost': buy_cost,
-        'buy_fees': buy_fees,
-        'total_buy': total_buy,
-        'sell_revenue': sell_revenue,
-        'sell_fees': sell_fees,
-        'total_sell': total_sell,
-        'profit': profit,
-        'profit_pct': profit_pct
-    }

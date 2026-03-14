@@ -8,9 +8,8 @@ from sqlalchemy import create_engine, text
 from numba import njit
 from pathlib import Path
 
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config import get_db_url, REPORT_DIR, INIT_CASH, DEFAULT_FEES, DEFAULT_SLIPPAGE
+from services.indicators import calculate_rsi, calculate_macd
 
 
 def get_engine():
@@ -62,19 +61,15 @@ def calc_indicators(df: pd.DataFrame) -> pd.DataFrame:
     # 移動平均
     df["sma20"] = close.rolling(20).mean()
     df["sma60"] = close.rolling(60).mean()
-    df["ema12"] = close.ewm(span=12, adjust=False).mean()
-    df["ema26"] = close.ewm(span=26, adjust=False).mean()
 
-    # MACD
-    df["macd"]        = df["ema12"] - df["ema26"]
-    df["macd_signal"] = df["macd"].ewm(span=9, adjust=False).mean()
-    df["macd_hist"]   = df["macd"] - df["macd_signal"]
+    # MACD（使用共用模組）
+    macd, macd_sig, macd_hist = calculate_macd(close)
+    df["macd"]        = macd
+    df["macd_signal"] = macd_sig
+    df["macd_hist"]   = macd_hist
 
-    # RSI-14
-    delta = close.diff()
-    gain  = delta.clip(lower=0).rolling(14).mean()
-    loss  = (-delta.clip(upper=0)).rolling(14).mean()
-    df["rsi14"] = 100 - (100 / (1 + gain / loss.replace(0, float("nan"))))
+    # RSI-14（使用共用模組）
+    df["rsi14"] = calculate_rsi(close, period=14)
 
     # 布林通道
     df["bb_mid"]   = close.rolling(20).mean()
@@ -280,6 +275,18 @@ def print_stats(portfolio: vbt.Portfolio, init_cash: float = INIT_CASH):
 # ═══════════════════════════════════════════════════════
 # 圖表：技術分析圖
 # ═══════════════════════════════════════════════════════
+def _get_cjk_font():
+    """自動偵測可用的中文字型（跨平台）"""
+    import matplotlib.font_manager as fm
+    candidates = ["Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC",
+                  "WenQuanYi Micro Hei", "SimHei", "Arial Unicode MS", "sans-serif"]
+    available = {f.name for f in fm.fontManager.ttflist}
+    for font in candidates:
+        if font in available:
+            return font
+    return "sans-serif"
+
+
 def plot_analysis(df: pd.DataFrame, symbol: str):
     """技術分析圖：K線 / 布林通道 / 成交量 / MACD / RSI + 下方說明"""
     import matplotlib.pyplot as plt
@@ -287,7 +294,7 @@ def plot_analysis(df: pd.DataFrame, symbol: str):
     import matplotlib.dates as mdates
     from matplotlib import rcParams
 
-    rcParams["font.family"]        = "Microsoft JhengHei"
+    rcParams["font.family"]        = _get_cjk_font()
     rcParams["axes.unicode_minus"] = False
 
     fig = plt.figure(figsize=(16, 18))
@@ -394,7 +401,7 @@ def plot_portfolio(portfolio: vbt.Portfolio, symbol: str, strategy: str):
     import matplotlib.gridspec as gridspec
     from matplotlib import rcParams
 
-    rcParams["font.family"]        = "Microsoft JhengHei"
+    rcParams["font.family"]        = _get_cjk_font()
     rcParams["axes.unicode_minus"] = False
 
     strategy_zh = {
@@ -520,48 +527,14 @@ def export_quantstats(portfolio: vbt.Portfolio,
 ALL_STRATEGIES = ["sma_cross", "rsi", "macd"]
 
 
-def run_full_backtest(symbol: str, start: str, end: str,
-                      strategy: str = "sma_cross",
-                      init_cash: float = INIT_CASH,
-                      fees: float = DEFAULT_FEES,
-                      slippage: float = DEFAULT_SLIPPAGE) -> vbt.Portfolio:
-    """完整流程：載入 → 計算指標 → 技術分析圖 → 產生訊號 → 回測 → 報告"""
-    df = load_data(symbol, start, end)
-    if df.empty:
-        print(f"❌ {symbol} 在指定日期範圍內無資料")
-        return None
-
-    df = calc_indicators(df)
-    
-    # 過濾掉 NaN 值
-    df_clean = df.dropna()
-    if len(df_clean) < 60:  # 至少需要 60 筆資料（因為 SMA60）
-        print(f"⚠️  {symbol} 有效資料不足（僅 {len(df_clean)} 筆），建議至少 60 筆以上")
-        return None
-    
-    plot_analysis(df, symbol)
-
-    entries, exits = get_signals(df, strategy=strategy)
-    pf = run_backtest(df, entries, exits,
-                      init_cash=init_cash, fees=fees, slippage=slippage)
-
-    # 檢查回測資料是否有效
-    if len(pf.wrapper.index) == 0:
-        print(f"⚠️  {symbol} 回測資料為空，無法生成報告")
-        return None
-    
-    print_stats(pf, init_cash=init_cash)
-    plot_portfolio(pf, symbol, strategy)
-    export_quantstats(pf, symbol, strategy)
-
-    return pf
-
-
 def run_all_strategies(symbol: str, start: str, end: str,
                        init_cash: float = INIT_CASH,
                        fees: float = DEFAULT_FEES,
-                       slippage: float = DEFAULT_SLIPPAGE) -> dict:
-    """跑全部策略（目前只有 sma_cross），回傳 {strategy: portfolio}"""
+                       slippage: float = DEFAULT_SLIPPAGE,
+                       strategies: list = None) -> dict:
+    """跑指定策略（預設全部），回傳 {strategy: portfolio}"""
+    if strategies is None:
+        strategies = ALL_STRATEGIES
     df = load_data(symbol, start, end)
     if df.empty:
         print(f"❌ {symbol} 在指定日期範圍 ({start} ~ {end}) 內無資料")
@@ -580,7 +553,7 @@ def run_all_strategies(symbol: str, start: str, end: str,
     plot_analysis(df, symbol)
 
     results = {}
-    for strat in ALL_STRATEGIES:
+    for strat in strategies:
         print(f"\n{'─'*50}")
         print(f"  📌 策略：{strat}")
         print(f"{'─'*50}")
@@ -601,5 +574,3 @@ def run_all_strategies(symbol: str, start: str, end: str,
         results[strat] = pf
 
     return results
-
-    return pf

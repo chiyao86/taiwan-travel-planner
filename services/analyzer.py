@@ -4,8 +4,6 @@ from groq import Groq
 from bs4 import BeautifulSoup
 from pathlib import Path
 
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config import GROQ_API_KEY, GROQ_MODEL, REPORT_DIR
 
 groq_client = Groq(api_key=GROQ_API_KEY)

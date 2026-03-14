@@ -4,9 +4,6 @@ from linebot import LineBotApi
 from linebot.models import TextSendMessage
 from linebot.exceptions import LineBotApiError
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config import LINE_CHANNEL_ACCESS_TOKEN, LINE_USER_ID
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)

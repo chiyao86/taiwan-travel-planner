@@ -12,6 +12,10 @@ REPORT_DIR = BASE_DIR / "回測報告"
 REPORT_DIR.mkdir(exist_ok=True)
 
 # ─── 資料庫設定 ───
+# DB_MODE: "postgres" (本地開發) 或 "sqlite" (雲端部署)
+DB_MODE = os.getenv("DB_MODE", "postgres")
+
+# PostgreSQL 設定（本地開發用）
 DB_CONFIG = {
     "host":     os.getenv("DB_HOST", "localhost"),
     "port":     int(os.getenv("DB_PORT", 5432)),
@@ -20,7 +24,12 @@ DB_CONFIG = {
     "password": os.getenv("DB_PASSWORD", "5432"),
 }
 
+# SQLite 設定（雲端部署用）
+SQLITE_PATH = BASE_DIR / "stock_data.db"
+
 def get_db_url():
+    if DB_MODE == "sqlite":
+        return f"sqlite:///{SQLITE_PATH}"
     c = DB_CONFIG
     return f"postgresql+psycopg2://{c['user']}:{c['password']}@{c['host']}:{c['port']}/{c['database']}"
 

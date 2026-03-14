@@ -16,6 +16,10 @@ build/
 # 環境變數
 .env
 
+# 資料庫檔案
+*.db
+stock_data.db
+
 # IDE
 .vscode/
 .idea/

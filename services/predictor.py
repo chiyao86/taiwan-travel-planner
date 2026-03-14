@@ -3,28 +3,19 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-import psycopg2
-from psycopg2.extras import RealDictCursor
 import xgboost as xgb
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 import warnings
 warnings.filterwarnings('ignore')
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from config import DB_CONFIG
-
-
-def get_conn():
-    """建立資料庫連線"""
-    return psycopg2.connect(**DB_CONFIG)
+from config import DB_CONFIG, DB_MODE
+from services.crawler import get_conn
+from services.indicators import calculate_rsi, calculate_macd
 
 
 def load_stock_data(symbol: str, years: int = 2) -> pd.DataFrame:
     """
-    從 PostgreSQL 讀取指定股票的歷史數據
+    從資料庫讀取指定股票的歷史數據
     
     Args:
         symbol: 股票代號 (如 '2330.TW', 'AAPL')
@@ -36,71 +27,39 @@ def load_stock_data(symbol: str, years: int = 2) -> pd.DataFrame:
     end_date = datetime.now()
     start_date = end_date - timedelta(days=years * 365)
     
-    query = """
-        SELECT 
-            trade_date,
-            open_price as open,
-            high_price as high,
-            low_price as low,
-            close_price as close,
-            volume
-        FROM stock_prices
-        WHERE symbol = %s
-          AND trade_date >= %s
-          AND trade_date <= %s
-        ORDER BY trade_date ASC
-    """
-    
-    with get_conn() as conn:
-        df = pd.read_sql_query(query, conn, params=(symbol, start_date, end_date))
+    if DB_MODE == "sqlite":
+        query = """
+            SELECT trade_date, open_price as open, high_price as high,
+                   low_price as low, close_price as close, volume
+            FROM stock_prices
+            WHERE symbol = ? AND trade_date >= ? AND trade_date <= ?
+            ORDER BY trade_date ASC
+        """
+        conn = get_conn()
+        try:
+            df = pd.read_sql_query(query, conn, params=(
+                symbol, start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")))
+        finally:
+            conn.close()
+    else:
+        query = """
+            SELECT trade_date, open_price as open, high_price as high,
+                   low_price as low, close_price as close, volume
+            FROM stock_prices
+            WHERE symbol = %s AND trade_date >= %s AND trade_date <= %s
+            ORDER BY trade_date ASC
+        """
+        conn = get_conn()
+        try:
+            df = pd.read_sql_query(query, conn, params=(symbol, start_date, end_date))
+        finally:
+            conn.close()
     
     df['trade_date'] = pd.to_datetime(df['trade_date'])
     df = df.set_index('trade_date')
     
     print(f"✅ 載入 {symbol} 的 {len(df)} 筆歷史數據 ({start_date.date()} ~ {end_date.date()})")
     return df
-
-
-def calculate_rsi(series: pd.Series, period: int = 14) -> pd.Series:
-    """
-    計算 RSI (Relative Strength Index) 相對強弱指標
-    
-    Args:
-        series: 價格序列 (通常是收盤價)
-        period: RSI 計算週期 (預設 14 天)
-    
-    Returns:
-        RSI 值序列 (0-100)
-    """
-    delta = series.diff()
-    gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
-    
-    rs = gain / loss
-    rsi = 100 - (100 / (1 + rs))
-    return rsi
-
-
-def calculate_macd(series: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9) -> tuple:
-    """
-    計算 MACD (Moving Average Convergence Divergence) 指標
-    
-    Args:
-        series: 價格序列 (通常是收盤價)
-        fast: 快線EMA週期 (預設 12)
-        slow: 慢線EMA週期 (預設 26)
-        signal: 訊號線EMA週期 (預設 9)
-    
-    Returns:
-        (MACD, Signal Line, Histogram)
-    """
-    ema_fast = series.ewm(span=fast, adjust=False).mean()
-    ema_slow = series.ewm(span=slow, adjust=False).mean()
-    macd = ema_fast - ema_slow
-    signal_line = macd.ewm(span=signal, adjust=False).mean()
-    histogram = macd - signal_line
-    
-    return macd, signal_line, histogram
 
 
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
