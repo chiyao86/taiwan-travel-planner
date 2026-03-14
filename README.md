@@ -77,7 +77,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=stock_db
 DB_USER=postgres
-DB_PASSWORD=5432
+DB_PASSWORD=your_password
 
 # --- API Keys ---
 GROQ_API_KEY=你的GROQ_API_KEY
