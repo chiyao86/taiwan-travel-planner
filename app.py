@@ -19,8 +19,8 @@ from utils.navigation import NavigationLinkGenerator  # noqa: E402
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-ATTRACTIONS_PER_DAY = 3       # multiplier when computing max_attractions
-MAX_ATTRACTIONS_CAP = 10      # upper bound on attractions fetched per plan
+ATTRACTIONS_PER_DAY = 4       # multiplier when computing max_attractions
+MAX_ATTRACTIONS_CAP = 15      # upper bound on attractions fetched per plan
 
 # ---------------------------------------------------------------------------
 # Page configuration
@@ -142,7 +142,7 @@ with st.sidebar:
 # ---------------------------------------------------------------------------
 st.markdown('<p class="main-title">🗺️ 台灣旅遊規劃師</p>', unsafe_allow_html=True)
 st.markdown(
-    "利用 **Playwright** 動態爬蟲 + **Groq AI (Llama 3)** 自動生成專屬旅遊行程，"
+    "利用 **Playwright** 動態爬蟲 + **Groq AI (Llama 3.3)** 自動生成專屬旅遊行程，"
     "並整合 **Google Maps** 導航連結！"
 )
 st.markdown("---")
@@ -257,7 +257,7 @@ else:
 | 功能 | 說明 |
 | ---- | ---- |
 | 🕷️ 動態爬蟲 | 使用 Playwright 爬取台灣各縣市最新景點 |
-| 🤖 AI 行程 | Groq Llama 3 生成個性化 Markdown 行程 |
+| 🤖 AI 行程 | Groq Llama 3.3 生成個性化 Markdown 行程 |
 | 🏨 住宿推薦 | 從 Booking.com 爬取最新飯店資訊 |
 | 🧭 地圖導航 | 一鍵生成 Google Maps 路線 |
 | ⚡ 快取優化 | 1 小時結果快取，避免重複爬取 |
