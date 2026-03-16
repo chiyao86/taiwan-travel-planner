@@ -20,7 +20,7 @@ from utils.navigation import NavigationLinkGenerator  # noqa: E402
 # Constants
 # ---------------------------------------------------------------------------
 ATTRACTIONS_PER_DAY = 4       # multiplier when computing max_attractions
-MAX_ATTRACTIONS_CAP = 15      # upper bound on attractions fetched per plan
+MAX_ATTRACTIONS_CAP = 20      # upper bound on attractions fetched per plan
 
 # ---------------------------------------------------------------------------
 # Page configuration

@@ -6,12 +6,13 @@ travellers can navigate between sights without manual copy-pasting.
 
 URL format used
 ---------------
-https://maps.google.com/?api=1&origin=<A>&destination=<B>&waypoints=<C>|<D>
+https://www.google.com/maps/dir/?api=1&origin=<A>&destination=<B>&waypoints=<C>|<D>
 """
 from urllib.parse import quote
 
 
-GOOGLE_MAPS_BASE = "https://maps.google.com/"
+GOOGLE_MAPS_BASE = "https://www.google.com/maps/"
+GOOGLE_MAPS_DIR = "https://www.google.com/maps/dir/"
 
 
 class NavigationLinkGenerator:
@@ -49,7 +50,7 @@ class NavigationLinkGenerator:
             waypoints = "|".join(quote(a) for a in self.attractions[1:-1])
             params += f"&waypoints={waypoints}"
 
-        return GOOGLE_MAPS_BASE + params
+        return GOOGLE_MAPS_DIR + params
 
     def generate_segment_links(self) -> list[dict[str, str]]:
         """Return a list of point-to-point navigation links.
@@ -66,7 +67,7 @@ class NavigationLinkGenerator:
             origin = self.attractions[i]
             destination = self.attractions[i + 1]
             url = (
-                f"{GOOGLE_MAPS_BASE}?api=1"
+                f"{GOOGLE_MAPS_DIR}?api=1"
                 f"&origin={quote(origin)}"
                 f"&destination={quote(destination)}"
             )
@@ -83,4 +84,4 @@ class NavigationLinkGenerator:
 
     @staticmethod
     def _search_url(place: str) -> str:
-        return f"{GOOGLE_MAPS_BASE}?q={quote(place)}"
+        return f"{GOOGLE_MAPS_BASE}search/?api=1&query={quote(place)}"
