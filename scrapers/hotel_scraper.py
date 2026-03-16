@@ -42,37 +42,52 @@ FALLBACK_HOTELS: dict[str, list[dict]] = {
         {"name": "台北喜來登大飯店", "price": "NT$ 5,500/晚起", "rating": "8.8", "address": "台北市中正區忠孝東路一段12號"},
         {"name": "台北美侖大飯店", "price": "NT$ 3,800/晚起", "rating": "8.5", "address": "台北市中山區民族東路"},
         {"name": "西門町商旅", "price": "NT$ 1,800/晚起", "rating": "8.2", "address": "台北市萬華區西寧南路"},
+        {"name": "台北文華東方酒店", "price": "NT$ 12,000/晚起", "rating": "9.5", "address": "台北市松山區敦化北路166號"},
+        {"name": "晶華酒店", "price": "NT$ 8,500/晚起", "rating": "9.3", "address": "台北市中山區中山北路二段41號"},
+        {"name": "老爺大酒店", "price": "NT$ 5,200/晚起", "rating": "8.9", "address": "台北市中山區中山北路二段37-1號"},
     ],
     "台中": [
         {"name": "日月千禧酒店", "price": "NT$ 4,500/晚起", "rating": "9.0", "address": "台中市西屯區市政北一路"},
         {"name": "台中金典酒店", "price": "NT$ 3,800/晚起", "rating": "8.7", "address": "台中市西區館前路"},
         {"name": "台中長榮桂冠酒店", "price": "NT$ 5,000/晚起", "rating": "8.9", "address": "台中市西屯區台灣大道二段"},
         {"name": "逢甲商旅", "price": "NT$ 1,600/晚起", "rating": "8.3", "address": "台中市西屯區逢甲路"},
+        {"name": "台中萬楓酒店", "price": "NT$ 3,200/晚起", "rating": "8.6", "address": "台中市西屯區惠來路二段"},
+        {"name": "台中福華大飯店", "price": "NT$ 2,800/晚起", "rating": "8.4", "address": "台中市西區台灣大道一段257號"},
+        {"name": "柏諾飯店", "price": "NT$ 1,400/晚起", "rating": "8.1", "address": "台中市中區台灣大道一段"},
     ],
     "台南": [
         {"name": "台南晶英酒店", "price": "NT$ 5,500/晚起", "rating": "9.3", "address": "台南市中西區西門路一段"},
         {"name": "台南大員皇冠假日酒店", "price": "NT$ 4,200/晚起", "rating": "8.8", "address": "台南市安平區"},
         {"name": "台南富信大飯店", "price": "NT$ 2,800/晚起", "rating": "8.4", "address": "台南市中西區公園路"},
         {"name": "台南永豐棧酒店", "price": "NT$ 3,200/晚起", "rating": "8.6", "address": "台南市南區西門路四段"},
+        {"name": "台南老爺行旅", "price": "NT$ 4,800/晚起", "rating": "9.0", "address": "台南市中西區和意路"},
+        {"name": "台南大億麗緻酒店", "price": "NT$ 3,500/晚起", "rating": "8.7", "address": "台南市中西區西門路一段660號"},
+        {"name": "台南商旅", "price": "NT$ 1,500/晚起", "rating": "8.0", "address": "台南市東區東門路二段"},
     ],
     "高雄": [
         {"name": "高雄漢來大飯店", "price": "NT$ 4,800/晚起", "rating": "9.0", "address": "高雄市前金區成功一路"},
         {"name": "高雄國賓大飯店", "price": "NT$ 3,500/晚起", "rating": "8.6", "address": "高雄市前金區民生二路"},
         {"name": "高雄福華大飯店", "price": "NT$ 3,200/晚起", "rating": "8.5", "address": "高雄市苓雅區四維三路"},
         {"name": "駁二艾尼斯旅店", "price": "NT$ 1,800/晚起", "rating": "8.7", "address": "高雄市鹽埕區"},
+        {"name": "高雄寒軒國際大飯店", "price": "NT$ 4,200/晚起", "rating": "8.8", "address": "高雄市新興區六合一路279號"},
+        {"name": "高雄義大皇家酒店", "price": "NT$ 5,500/晚起", "rating": "9.1", "address": "高雄市大樹區學城路一段"},
+        {"name": "高雄商旅", "price": "NT$ 1,400/晚起", "rating": "8.0", "address": "高雄市三民區九如二路"},
     ],
     "花蓮": [
         {"name": "花蓮理想大地度假村", "price": "NT$ 6,500/晚起", "rating": "9.1", "address": "花蓮縣壽豐鄉理想路1號"},
         {"name": "花蓮翰品酒店", "price": "NT$ 3,800/晚起", "rating": "8.8", "address": "花蓮市國聯一路51號"},
         {"name": "花蓮美侖大飯店", "price": "NT$ 4,200/晚起", "rating": "8.7", "address": "花蓮市林森路1號"},
         {"name": "花蓮統帥大飯店", "price": "NT$ 2,500/晚起", "rating": "8.3", "address": "花蓮市中山路2號"},
+        {"name": "花蓮遠雄悅來大飯店", "price": "NT$ 5,800/晚起", "rating": "9.0", "address": "花蓮縣壽豐鄉鹽寮村43號"},
+        {"name": "花蓮煙波大飯店", "price": "NT$ 3,200/晚起", "rating": "8.6", "address": "花蓮市中美路6號"},
+        {"name": "時光旅宿", "price": "NT$ 1,200/晚起", "rating": "8.2", "address": "花蓮市中正路"},
     ],
 }
 
 # Budget-level price filter thresholds (NT$ per night)
 BUDGET_MAX_PRICE: dict[str, int] = {
-    "經濟": 2000,
-    "中等": 5000,
+    "經濟": 3000,
+    "中等": 7000,
     "豪華": 999999,
 }
 

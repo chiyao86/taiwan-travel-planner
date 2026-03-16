@@ -8,6 +8,7 @@ Supported cities and their official tourism URLs:
     花蓮  → https://tour.hl.gov.tw/
 """
 import asyncio
+import logging
 import random
 from typing import Any
 
@@ -21,6 +22,8 @@ except ImportError:
 
 from .base_scraper import BaseScraper, Attraction
 
+logger = logging.getLogger(__name__)
+
 
 # ---------------------------------------------------------------------------
 # Per-city configuration: URL + CSS selectors (best-effort selectors that
@@ -29,6 +32,10 @@ from .base_scraper import BaseScraper, Attraction
 CITY_CONFIG: dict[str, dict] = {
     "台北": {
         "url": "https://www.travel.taipei/zh-tw/attraction/lists/page/1",
+        "extra_pages": [
+            "https://www.travel.taipei/zh-tw/attraction/lists/page/2",
+            "https://www.travel.taipei/zh-tw/attraction/lists/page/3",
+        ],
         "card_selector": "li.list-card-item",
         "name_selector": "h3.card-title",
         "desc_selector": "p.card-text",
@@ -38,6 +45,9 @@ CITY_CONFIG: dict[str, dict] = {
     },
     "台中": {
         "url": "https://travel.taichung.gov.tw/zh-tw/Attractions/List",
+        "extra_pages": [
+            "https://travel.taichung.gov.tw/zh-tw/Attractions/List?page=2",
+        ],
         "card_selector": "div.list-wrap ul li",
         "name_selector": "h3",
         "desc_selector": "p",
@@ -47,6 +57,7 @@ CITY_CONFIG: dict[str, dict] = {
     },
     "台南": {
         "url": "https://www.tainan.com.tw/tainan/scenery.asp",
+        "extra_pages": [],
         "card_selector": "div.item",
         "name_selector": "div.item-title",
         "desc_selector": "div.item-desc",
@@ -56,6 +67,9 @@ CITY_CONFIG: dict[str, dict] = {
     },
     "高雄": {
         "url": "https://khh.travel/zh-tw/Attractions/List",
+        "extra_pages": [
+            "https://khh.travel/zh-tw/Attractions/List?page=2",
+        ],
         "card_selector": "li.attraction-item",
         "name_selector": "h3",
         "desc_selector": "p.desc",
@@ -65,6 +79,9 @@ CITY_CONFIG: dict[str, dict] = {
     },
     "花蓮": {
         "url": "https://tour.hl.gov.tw/zh-tw/Attractions/Index",
+        "extra_pages": [
+            "https://tour.hl.gov.tw/zh-tw/Attractions/Index?page=2",
+        ],
         "card_selector": "div.scenic-item",
         "name_selector": "h3.scenic-name",
         "desc_selector": "p.scenic-desc",
@@ -89,6 +106,14 @@ FALLBACK_ATTRACTIONS: dict[str, list[dict]] = {
         {"name": "饒河街夜市", "description": "台北知名夜市之一，胡椒餅為必吃名物。", "address": "台北市松山區饒河街"},
         {"name": "龍山寺", "description": "台灣香火最鼎盛的廟宇之一，清代古廟。", "address": "台北市萬華區廣州街211號"},
         {"name": "台北動物園", "description": "亞洲最大的市立動物園，貓熊館最受歡迎。", "address": "台北市文山區新光路二段30號"},
+        {"name": "北投溫泉", "description": "溫泉博物館與特色湯屋，市區泡湯首選。", "address": "台北市北投區中山路"},
+        {"name": "台北植物園", "description": "市區內的自然生態寶庫，荷花池四季美麗。", "address": "台北市中正區南海路53號"},
+        {"name": "華山1914文創園區", "description": "舊酒廠轉型的文創聚落，展覽活動豐富。", "address": "台北市中正區八德路一段1號"},
+        {"name": "松山文創園區", "description": "日式老菸廠改造，文創品牌與設計展覽聚集。", "address": "台北市信義區光復南路133號"},
+        {"name": "迪化街", "description": "百年老街，年貨大街與中藥布莊林立。", "address": "台北市大同區迪化街一段"},
+        {"name": "貓空纜車", "description": "俯瞰台北盆地的空中纜車，終點站有茶園餐廳。", "address": "台北市文山區指南路三段38巷33號"},
+        {"name": "象山步道", "description": "台北最受歡迎的城市健行步道，可俯瞰101夜景。", "address": "台北市信義區信義路五段150巷"},
+        {"name": "台北市立美術館", "description": "台灣最重要的現代藝術館，展覽多元精彩。", "address": "台北市中山區中山北路三段181號"},
     ],
     "台中": [
         {"name": "彩虹村", "description": "充滿色彩的彩繪村落，藝術氛圍濃厚。", "address": "台中市南屯區春安路56巷"},
@@ -101,6 +126,16 @@ FALLBACK_ATTRACTIONS: dict[str, list[dict]] = {
         {"name": "台中公園", "description": "市中心老公園，湖心亭倒影是台中經典意象。", "address": "台中市北區公園路37號"},
         {"name": "武陵農場", "description": "台灣最美的高山農場，春季櫻花祭盛況空前。", "address": "台中市和平區武陵路3號"},
         {"name": "新社花海", "description": "每年秋冬舉辦的大型花卉節，花田壯觀。", "address": "台中市新社區中興嶺街一段"},
+        {"name": "大坑風景區", "description": "台中近郊登山健行聖地，步道難易程度分明。", "address": "台中市北屯區大坑"},
+        {"name": "台中文學館", "description": "前台中市役所改建，展覽台中文學發展史。", "address": "台中市西區樂群街38號"},
+        {"name": "審計新村", "description": "舊宿舍活化為文創市集，假日人潮絡繹不絕。", "address": "台中市西區民生路368巷"},
+        {"name": "大甲鎮瀾宮", "description": "全台最負盛名的媽祖廟，每年進香遶境盛況空前。", "address": "台中市大甲區順天路158號"},
+        {"name": "后豐鐵馬道", "description": "廢棄鐵路改建的自行車道，穿越峽谷橋梁景色壯觀。", "address": "台中市豐原區后豐鐵馬道"},
+        {"name": "霧峰林家花園", "description": "台灣保存最完整的傳統漢式宅第，清代建築精華。", "address": "台中市霧峰區民生路42號"},
+        {"name": "中台灣農業博覽會", "description": "台中大型農業主題展覽，四季皆有主題花卉展出。", "address": "台中市后里區"},
+        {"name": "台中港", "description": "台灣第二大港，港區觀光購物中心及海鮮市場。", "address": "台中市梧棲區台中港"},
+        {"name": "台中州廳", "description": "日治時代巴洛克建築，台中地標性歷史建物。", "address": "台中市西區民權路99號"},
+        {"name": "第二市場", "description": "百年傳統市場，台中最道地的早餐美食聚集。", "address": "台中市中區三民路二段87號"},
     ],
     "台南": [
         {"name": "赤崁樓", "description": "荷蘭殖民時期建築，台南代表性古蹟。", "address": "台南市中西區民族路二段212號"},
@@ -118,6 +153,11 @@ FALLBACK_ATTRACTIONS: dict[str, list[dict]] = {
         {"name": "關子嶺溫泉", "description": "台灣著名泥漿溫泉，泡湯兼賞夜景。", "address": "台南市白河區關子嶺"},
         {"name": "永康糖廠", "description": "日治時期製糖廠，冰品聞名、園區懷舊。", "address": "台南市永康區中山南路601號"},
         {"name": "國華街", "description": "台南最熱鬧的美食街，小吃林立、香氣四溢。", "address": "台南市中西區國華街"},
+        {"name": "林百貨", "description": "日治時代歷史建築，現為文創選物店。", "address": "台南市中西區忠義路二段63號"},
+        {"name": "台南市美術館", "description": "府城最重要的當代美術展覽空間，建築設計別具一格。", "address": "台南市中西區南門路37號"},
+        {"name": "鄭成功文物館", "description": "記錄鄭成功開台史蹟的專題展覽館。", "address": "台南市中西區開山路152號"},
+        {"name": "烏山頭水庫", "description": "嘉南大圳的樞紐，珊瑚潭湖光如詩如畫。", "address": "台南市官田區嘉南里67號"},
+        {"name": "南鯤鯓代天府", "description": "全台規模最大的王爺廟，香火鼎盛。", "address": "台南市北門區鯤江里976號"},
     ],
     "高雄": [
         {"name": "蓮池潭", "description": "龍虎塔為標誌，民間信仰聖地。", "address": "高雄市左營區蓮池潭"},
@@ -130,6 +170,16 @@ FALLBACK_ATTRACTIONS: dict[str, list[dict]] = {
         {"name": "佛光山", "description": "台灣最大佛教聖地，大佛高達36公尺。", "address": "高雄市大樹區興田路153號"},
         {"name": "高雄市立美術館", "description": "南台灣最重要的現代美術館，館藏豐富。", "address": "高雄市鼓山區美術館路80號"},
         {"name": "茂林國家風景區", "description": "紫蝶幽谷，每年紫斑蝶遷徙奇景。", "address": "高雄市茂林區"},
+        {"name": "高雄港", "description": "台灣最大國際商港，港景夜色壯觀。", "address": "高雄市鹽埕區北斗街1號"},
+        {"name": "春天藝術節", "description": "高雄年度最大戶外藝術節，在衛武營舉辦。", "address": "高雄市鳳山區樹德里"},
+        {"name": "衛武營國家藝術文化中心", "description": "全球最大管風琴所在地，世界級演藝廳。", "address": "高雄市鳳山區三多一路1號"},
+        {"name": "壽山國家自然公園", "description": "市區內的自然森林，台灣獼猴棲地。", "address": "高雄市鼓山區壽山路"},
+        {"name": "光榮碼頭", "description": "高雄新灣岸圈的核心，觀光遊艇與夜市聚集。", "address": "高雄市苓雅區新光路1號"},
+        {"name": "左營眷村文化園區", "description": "海軍眷村活化，眷村文化保存完整。", "address": "高雄市左營區龜山里"},
+        {"name": "大東文化藝術中心", "description": "鳳山最重要的文化展演空間，建築設計前衛。", "address": "高雄市鳳山區光遠路161號"},
+        {"name": "橋頭糖廠", "description": "台灣第一座現代化糖廠，日式宿舍群保存良好。", "address": "高雄市橋頭區糖廠路24號"},
+        {"name": "高雄市立歷史博物館", "description": "高雄在地歷史文物典藏，日治市役所古蹟。", "address": "高雄市鹽埕區中正四路272號"},
+        {"name": "鳳儀書院", "description": "鳳山最古老的文教場所，清代書院修復展覽。", "address": "高雄市鳳山區鳳明街62號"},
     ],
     "花蓮": [
         {"name": "太魯閣國家公園", "description": "台灣最著名的峽谷景觀，世界級自然奇景。", "address": "花蓮縣秀林鄉"},
@@ -142,6 +192,16 @@ FALLBACK_ATTRACTIONS: dict[str, list[dict]] = {
         {"name": "慶修院", "description": "日治時期保留的日式真言宗寺院。", "address": "花蓮縣吉安鄉中興路345-1號"},
         {"name": "瑞穗溫泉", "description": "碳酸氫鈉泉，素有「美人湯」之稱。", "address": "花蓮縣瑞穗鄉溫泉路"},
         {"name": "富里鄉六十石山", "description": "「東台灣的金針花海」，每年夏秋盛開。", "address": "花蓮縣富里鄉竹田村"},
+        {"name": "砂卡礑步道", "description": "太魯閣內著名溪谷步道，碧藍溪水令人驚艷。", "address": "花蓮縣秀林鄉富世村"},
+        {"name": "布洛灣台地", "description": "太魯閣峽谷中的原住民文化展示區。", "address": "花蓮縣秀林鄉"},
+        {"name": "花蓮吉安慶豐夜市", "description": "在地人最愛的夜市，台灣小吃與原住民料理兼備。", "address": "花蓮縣吉安鄉"},
+        {"name": "玉里神社", "description": "日治時期保存最完整的神社遺址之一。", "address": "花蓮縣玉里鎮中山路三段"},
+        {"name": "光復糖廠", "description": "日治製糖廠，冰品馳名，蒸汽火車可乘坐。", "address": "花蓮縣光復鄉大進村糖廠街19號"},
+        {"name": "花蓮海洋公園", "description": "海洋主題樂園，海豚表演與水上活動豐富。", "address": "花蓮縣壽豐鄉鹽寮村鹽寮43-1號"},
+        {"name": "賞鯨豚", "description": "花蓮外海鯨豚種類豐富，全年皆有賞鯨行程。", "address": "花蓮縣花蓮市花蓮港"},
+        {"name": "翡翠谷", "description": "太魯閣溪谷絕景，碧綠潭水與大理石地形交輝。", "address": "花蓮縣秀林鄉天祥路"},
+        {"name": "林田山林業文化園區", "description": "伐木業歷史保存，日式木造建築群完整呈現。", "address": "花蓮縣鳳林鎮森榮里林森路"},
+        {"name": "奇萊山", "description": "台灣百岳之一，以霧氣神秘著稱。", "address": "花蓮縣秀林鄉"},
     ],
 }
 
@@ -194,7 +254,7 @@ class CityScraper(BaseScraper):
     # ------------------------------------------------------------------
 
     async def _scrape(self, config: dict) -> list[Attraction]:
-        """Launch browser and scrape the target page."""
+        """Launch browser and scrape the target page(s)."""
         attractions: list[Attraction] = []
 
         async with async_playwright() as pw:
@@ -209,17 +269,27 @@ class CityScraper(BaseScraper):
             if _STEALTH_AVAILABLE:
                 await stealth_async(page)
 
-            try:
-                await page.goto(config["url"], timeout=30_000, wait_until="domcontentloaded")
-                await self.random_delay(2.0, 4.0)
-                await self._human_scroll(page)
-                await self.random_delay(1.0, 2.0)
+            urls_to_scrape = [config["url"]] + config.get("extra_pages", [])
 
-                cards = await page.query_selector_all(config["card_selector"])
-                for card in cards[: self.max_items]:
-                    attraction = await self._parse_card(page, card, config)
-                    if attraction:
-                        attractions.append(attraction)
+            try:
+                for url in urls_to_scrape:
+                    if len(attractions) >= self.max_items:
+                        break
+                    try:
+                        await page.goto(url, timeout=30_000, wait_until="domcontentloaded")
+                        await self.random_delay(2.0, 4.0)
+                        await self._human_scroll(page)
+                        await self.random_delay(1.0, 2.0)
+
+                        cards = await page.query_selector_all(config["card_selector"])
+                        remaining = self.max_items - len(attractions)
+                        for card in cards[:remaining]:
+                            attraction = await self._parse_card(page, card, config)
+                            if attraction:
+                                attractions.append(attraction)
+                    except Exception as exc:
+                        logger.debug("Failed to scrape page %s: %s", url, exc)
+                        continue
             finally:
                 await context.close()
                 await browser.close()
@@ -271,7 +341,8 @@ class CityScraper(BaseScraper):
                 image_url=image_url,
                 source_url=source_url,
             )
-        except Exception:
+        except Exception as exc:
+            logger.debug("Failed to parse attraction card: %s", exc)
             return None
 
     def _fallback_attractions(self) -> list[Attraction]:
