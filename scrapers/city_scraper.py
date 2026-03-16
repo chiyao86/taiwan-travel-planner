@@ -5,8 +5,6 @@ Supported cities and their official tourism URLs:
     新北  → https://newtaipei.travel/
     桃園  → https://travel.tycg.gov.tw/
     台中  → https://travel.taichung.gov.tw/
-    台南  → https://www.twtainan.net/
-    高雄  → https://khh.travel/
     基隆  → https://travel.klcg.gov.tw/
     新竹  → https://tourism.hccg.gov.tw/
     苗栗  → https://miaolitravel.net/
@@ -14,6 +12,8 @@ Supported cities and their official tourism URLs:
     南投  → https://travel.nantou.gov.tw/
     雲林  → https://tour.yunlin.gov.tw/
     嘉義  → https://travel.chiayi.gov.tw/
+    台南  → https://www.twtainan.net/
+    高雄  → https://khh.travel/
     屏東  → https://pingtung.easytravel.com.tw/
     宜蘭  → https://www.taiwan.net.tw/
     花蓮  → https://tour-hualien.hl.gov.tw/
@@ -50,19 +50,19 @@ CITY_CONFIG: dict[str, dict] = {
     },
     "新北": {
         "url": "https://newtaipei.travel/zh-tw/tour/list?sortby=hits",
-        "card_selector": "div.tour-item, li.tour-item, div.card-item",
-        "name_selector": "h3, h4, .item-title",
-        "desc_selector": "p, .item-desc",
-        "addr_selector": ".address, .addr",
+        "card_selector": "div.tour-item",
+        "name_selector": "h3",
+        "desc_selector": "p.desc",
+        "addr_selector": "span.address",
         "img_selector": "img",
         "link_selector": "a",
     },
     "桃園": {
         "url": "https://travel.tycg.gov.tw/zh-tw/travel/tourlist",
-        "card_selector": "div.list-item, li.list-item, div.travel-item",
-        "name_selector": "h3, h4, .title",
-        "desc_selector": "p, .desc",
-        "addr_selector": ".address",
+        "card_selector": "div.item-block",
+        "name_selector": "h3",
+        "desc_selector": "p",
+        "addr_selector": "span.address",
         "img_selector": "img",
         "link_selector": "a",
     },
@@ -75,102 +75,102 @@ CITY_CONFIG: dict[str, dict] = {
         "img_selector": "img",
         "link_selector": "a",
     },
-    "台南": {
-        "url": "https://www.twtainan.net/zh-tw/attractions/",
-        "card_selector": "div.item, li.spot-item",
-        "name_selector": "h3, .spot-name",
-        "desc_selector": "p, .spot-desc",
-        "addr_selector": ".address, .addr",
-        "img_selector": "img",
-        "link_selector": "a",
-    },
-    "高雄": {
-        "url": "https://khh.travel/zh-tw/attractions/list/",
-        "card_selector": "li.attraction-item, div.attraction-item",
-        "name_selector": "h3",
-        "desc_selector": "p.desc",
-        "addr_selector": "p.address",
-        "img_selector": "img",
-        "link_selector": "a",
-    },
     "基隆": {
         "url": "https://travel.klcg.gov.tw/SiteMap.aspx?n=8184",
-        "card_selector": "div.scenic-item, li.scenic-item, div.item",
+        "card_selector": "div.scenic-item, li.item",
         "name_selector": "h3, .title",
         "desc_selector": "p, .desc",
-        "addr_selector": ".address",
+        "addr_selector": "span.address, .addr",
         "img_selector": "img",
         "link_selector": "a",
     },
     "新竹": {
         "url": "https://tourism.hccg.gov.tw/chtravel/app/travel/list?id=37",
-        "card_selector": "div.item, li.travel-item",
+        "card_selector": "div.item-block, li.item",
         "name_selector": "h3, .title",
         "desc_selector": "p, .desc",
-        "addr_selector": ".address",
+        "addr_selector": "span.address, .addr",
         "img_selector": "img",
         "link_selector": "a",
     },
     "苗栗": {
         "url": "https://miaolitravel.net/article.aspx?sno=03004313",
-        "card_selector": "div.item, li.item",
+        "card_selector": "div.item-block, li.list-item",
         "name_selector": "h3, .title",
         "desc_selector": "p, .desc",
-        "addr_selector": ".address",
+        "addr_selector": "span.address, .addr",
         "img_selector": "img",
         "link_selector": "a",
     },
     "彰化": {
         "url": "https://tourism.chcg.gov.tw/Attractions.aspx",
-        "card_selector": "div.list-item, li.item",
+        "card_selector": "div.item-block, li.item",
         "name_selector": "h3, .title",
         "desc_selector": "p, .desc",
-        "addr_selector": ".address",
+        "addr_selector": "span.address, .addr",
         "img_selector": "img",
         "link_selector": "a",
     },
     "南投": {
         "url": "https://travel.nantou.gov.tw/attractions/",
-        "card_selector": "div.attractions-item, li.item",
+        "card_selector": "div.item-block, li.item",
         "name_selector": "h3, .title",
         "desc_selector": "p, .desc",
-        "addr_selector": ".address",
+        "addr_selector": "span.address, .addr",
         "img_selector": "img",
         "link_selector": "a",
     },
     "雲林": {
         "url": "https://tour.yunlin.gov.tw/mainssl/modules/MySpace/BlogList.php?sn=yunlin&cn=ZC10350618",
-        "card_selector": "div.item, li.item",
+        "card_selector": "div.item-block, li.item",
         "name_selector": "h3, .title",
         "desc_selector": "p, .desc",
-        "addr_selector": ".address",
+        "addr_selector": "span.address, .addr",
         "img_selector": "img",
         "link_selector": "a",
     },
     "嘉義": {
         "url": "https://travel.chiayi.gov.tw/TravelInformation/C000005/1",
-        "card_selector": "div.item, li.item",
+        "card_selector": "div.item-block, li.item",
         "name_selector": "h3, .title",
         "desc_selector": "p, .desc",
-        "addr_selector": ".address",
+        "addr_selector": "span.address, .addr",
+        "img_selector": "img",
+        "link_selector": "a",
+    },
+    "台南": {
+        "url": "https://www.twtainan.net/zh-tw/attractions/",
+        "card_selector": "div.item-block, li.item",
+        "name_selector": "h3, .title",
+        "desc_selector": "p, .desc",
+        "addr_selector": "span.address, .addr",
+        "img_selector": "img",
+        "link_selector": "a",
+    },
+    "高雄": {
+        "url": "https://khh.travel/zh-tw/attractions/list/",
+        "card_selector": "li.attraction-item, div.item-block",
+        "name_selector": "h3",
+        "desc_selector": "p.desc, p",
+        "addr_selector": "p.address, span.address",
         "img_selector": "img",
         "link_selector": "a",
     },
     "屏東": {
         "url": "https://pingtung.easytravel.com.tw/scenic/",
-        "card_selector": "div.scenic-item, li.item",
+        "card_selector": "div.item-block, li.item",
         "name_selector": "h3, .title",
         "desc_selector": "p, .desc",
-        "addr_selector": ".address",
+        "addr_selector": "span.address, .addr",
         "img_selector": "img",
         "link_selector": "a",
     },
     "宜蘭": {
         "url": "https://www.taiwan.net.tw/m1.aspx?sNo=0000064&keyString=%e5%ae%9c%e8%98%ad%5e%5e%5e%5e0",
-        "card_selector": "div.item, li.item",
+        "card_selector": "div.item-block, li.item",
         "name_selector": "h3, .title",
         "desc_selector": "p, .desc",
-        "addr_selector": ".address",
+        "addr_selector": "span.address, .addr",
         "img_selector": "img",
         "link_selector": "a",
     },
@@ -179,16 +179,16 @@ CITY_CONFIG: dict[str, dict] = {
         "card_selector": "div.scenic-item, li.item",
         "name_selector": "h3.scenic-name, h3, .title",
         "desc_selector": "p.scenic-desc, p, .desc",
-        "addr_selector": "span.scenic-addr, .address",
+        "addr_selector": "span.scenic-addr, span.address",
         "img_selector": "img",
         "link_selector": "a",
     },
     "台東": {
         "url": "https://tour.taitung.gov.tw/zh-tw/attraction",
-        "card_selector": "div.item, li.item",
+        "card_selector": "div.item-block, li.item",
         "name_selector": "h3, .title",
         "desc_selector": "p, .desc",
-        "addr_selector": ".address",
+        "addr_selector": "span.address, .addr",
         "img_selector": "img",
         "link_selector": "a",
     },
@@ -498,12 +498,11 @@ class CityScraper(BaseScraper):
     Parameters
     ----------
     city : str
-        One of 台北、新北、桃園、台中、台南、高雄、基隆、新竹、苗栗、彰化、
-        南投、雲林、嘉義、屏東、宜蘭、花蓮、台東.
+        One of 台北、新北、桃園、台中、基隆、新竹、苗栗、彰化、南投、雲林、嘉義、台南、高雄、屏東、宜蘭、花蓮、台東.
     headless : bool
         Whether to launch Chromium in headless mode (default ``True``).
     max_items : int
-        Maximum number of attractions to return (default ``15``).
+        Maximum number of attractions to return (default ``10``).
     """
 
     def __init__(self, city: str, headless: bool = True, max_items: int = 15):
