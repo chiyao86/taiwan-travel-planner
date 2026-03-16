@@ -54,8 +54,8 @@ class TravelManager:
         self,
         groq_api_key: str = "",
         headless: bool = True,
-        max_attractions: int = 8,
-        max_hotels: int = 5,
+        max_attractions: int = 15,
+        max_hotels: int = 20,
     ):
         self.groq_api_key = groq_api_key
         self.headless = headless
