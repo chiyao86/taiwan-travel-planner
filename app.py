@@ -2,7 +2,8 @@
 
 Main entry-point for the application.  Provides a clean sidebar for
 configuration and a main content area that shows the AI-generated
-itinerary, attraction cards, hotel suggestions and navigation links.
+itinerary, attraction cards, hotel suggestions and a single Google Maps
+complete-route link.
 """
 import datetime
 import os
@@ -38,17 +39,72 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    .main-title { font-size: 2.5rem; font-weight: 700; color: #1a6b3c; }
-    .section-header { font-size: 1.4rem; font-weight: 600; margin-top: 1rem; }
+    /* ---- Global typography ---- */
+    html, body, [class*="css"] { font-family: 'Noto Sans TC', 'Helvetica Neue', sans-serif; }
+
+    /* ---- Page title ---- */
+    .main-title {
+        font-size: 2.6rem; font-weight: 800;
+        background: linear-gradient(90deg, #1a6b3c 0%, #2e9e60 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        margin-bottom: 0.2rem;
+    }
+
+    /* ---- Metrics row ---- */
+    div[data-testid="metric-container"] {
+        background: #f8fdf9; border: 1px solid #d4edda;
+        border-radius: 10px; padding: 0.8rem 1rem;
+    }
+
+    /* ---- Attraction card ---- */
     .attraction-card {
-        background: #f0f8f0; border-left: 4px solid #1a6b3c;
-        padding: 0.8rem 1rem; border-radius: 6px; margin-bottom: 0.6rem;
+        background: linear-gradient(135deg, #f0f9f4 0%, #e8f5ed 100%);
+        border-left: 5px solid #1a6b3c;
+        padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.6rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
+    .attraction-card b { color: #145a30; font-size: 1.05rem; }
+
+    /* ---- Hotel card ---- */
     .hotel-card {
-        background: #f0f4ff; border-left: 4px solid #2456a4;
-        padding: 0.8rem 1rem; border-radius: 6px; margin-bottom: 0.6rem;
+        background: linear-gradient(135deg, #f0f4ff 0%, #e8edff 100%);
+        border-left: 5px solid #2456a4;
+        padding: 1rem 1.2rem; border-radius: 8px; margin-bottom: 0.6rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
-    .nav-link { font-size: 0.9rem; }
+    .hotel-card b { color: #1a3a75; font-size: 1.05rem; }
+
+    /* ---- Map CTA button ---- */
+    .map-cta {
+        display: inline-block;
+        background: linear-gradient(90deg, #1a6b3c 0%, #2e9e60 100%);
+        color: #ffffff !important; font-size: 1.1rem; font-weight: 700;
+        padding: 0.75rem 2rem; border-radius: 30px; text-decoration: none;
+        box-shadow: 0 4px 14px rgba(26,107,60,0.35);
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .map-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(26,107,60,0.45);
+        color: #ffffff !important;
+    }
+
+    /* ---- Route stop list ---- */
+    .route-stop {
+        display: flex; align-items: center; gap: 0.6rem;
+        padding: 0.5rem 0.8rem; margin-bottom: 0.3rem;
+        background: #f8fdf9; border-radius: 6px;
+        border: 1px solid #d4edda; font-size: 0.95rem;
+    }
+    .route-stop .stop-num {
+        background: #1a6b3c; color: #fff;
+        border-radius: 50%; width: 1.5rem; height: 1.5rem;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+    }
+
+    /* ---- Sidebar tweaks ---- */
+    section[data-testid="stSidebar"] { background: #f8fdf9; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -142,8 +198,8 @@ with st.sidebar:
 # ---------------------------------------------------------------------------
 st.markdown('<p class="main-title">🗺️ 台灣旅遊規劃師</p>', unsafe_allow_html=True)
 st.markdown(
-    "利用 **Playwright** 動態爬蟲 + **Groq AI (Llama 3)** 自動生成專屬旅遊行程，"
-    "並整合 **Google Maps** 導航連結！"
+    "利用 **Playwright** 動態爬蟲 + **Groq AI (Llama 3.3)** 自動生成專屬旅遊行程，"
+    "並整合 **Google Maps** 一鍵導航完整路線！"
 )
 st.markdown("---")
 
@@ -225,26 +281,46 @@ if generate_btn:
                         unsafe_allow_html=True,
                     )
 
-    # ---- Navigation ----
+    # ---- Navigation (complete route only) ----
     with tab_navigation:
-        st.markdown("### 🧭 Google Maps 導航連結")
+        st.markdown("### 🧭 Google Maps 完整路線導航")
 
-        if plan.full_route_url:
+        if not plan.attractions:
+            st.info("暫無景點資訊，無法生成路線。")
+        elif len(plan.attractions) == 1:
+            st.info("僅有單一景點，請點擊下方連結查詢地圖。")
+            nav_url = NavigationLinkGenerator(
+                [plan.attractions[0].name]
+            ).generate_place_link(plan.attractions[0].name)
             st.markdown(
-                f"#### 🗺️ 完整路線（一鍵導航全程）\n"
-                f"[點此開啟 Google Maps 完整路線]({plan.full_route_url})"
+                f'<a href="{nav_url}" target="_blank" class="map-cta">'
+                f"🗺️ 在 Google Maps 查看 {plan.attractions[0].name}</a>",
+                unsafe_allow_html=True,
             )
-            st.markdown("---")
+        else:
+            st.markdown(
+                "以下為本次行程所有景點的 **完整路線**，點擊按鈕即可在 Google Maps 中開啟導航。"
+            )
+            st.markdown("")
 
-        if plan.segment_links:
-            st.markdown("#### 📍 逐段導航連結")
-            for seg in plan.segment_links:
+            # Route stop list
+            stops_html = "".join(
+                f'<div class="route-stop">'
+                f'<span class="stop-num">{i}</span>'
+                f"<span>{attr.name}</span>"
+                f"</div>"
+                for i, attr in enumerate(plan.attractions, 1)
+            )
+            st.markdown(stops_html, unsafe_allow_html=True)
+            st.markdown("")
+
+            # Single CTA button
+            if plan.full_route_url:
                 st.markdown(
-                    f'<span class="nav-link">🔸 [{seg["label"]}]({seg["url"]})</span>',
+                    f'<a href="{plan.full_route_url}" target="_blank" class="map-cta">'
+                    "🗺️ 點此開啟 Google Maps 完整路線</a>",
                     unsafe_allow_html=True,
                 )
-        else:
-            st.info("景點不足兩處，無法生成逐段導航。")
 
 else:
     # Landing page when no plan has been generated yet
@@ -257,9 +333,9 @@ else:
 | 功能 | 說明 |
 | ---- | ---- |
 | 🕷️ 動態爬蟲 | 使用 Playwright 爬取台灣各縣市最新景點 |
-| 🤖 AI 行程 | Groq Llama 3 生成個性化 Markdown 行程 |
+| 🤖 AI 行程 | Groq Llama 3.3 生成個性化 Markdown 行程 |
 | 🏨 住宿推薦 | 從 Booking.com 爬取最新飯店資訊 |
-| 🧭 地圖導航 | 一鍵生成 Google Maps 路線 |
+| 🧭 地圖導航 | 一鍵開啟 Google Maps 完整路線 |
 | ⚡ 快取優化 | 1 小時結果快取，避免重複爬取 |
 
 ### 支援城市
