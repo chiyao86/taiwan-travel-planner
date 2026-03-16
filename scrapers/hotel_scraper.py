@@ -28,10 +28,22 @@ BOOKING_BASE = "https://www.booking.com/searchresults.zh-tw.html"
 
 BOOKING_CITY_NAMES: dict[str, str] = {
     "台北": "Taipei, Taiwan",
+    "新北": "New Taipei, Taiwan",
+    "桃園": "Taoyuan, Taiwan",
     "台中": "Taichung, Taiwan",
+    "基隆": "Keelung, Taiwan",
+    "新竹": "Hsinchu, Taiwan",
+    "苗栗": "Miaoli, Taiwan",
+    "彰化": "Changhua, Taiwan",
+    "南投": "Nantou, Taiwan",
+    "雲林": "Yunlin, Taiwan",
+    "嘉義": "Chiayi, Taiwan",
     "台南": "Tainan, Taiwan",
-    "高雄": "Kaohsiung, Taiwan",
+    "屏東": "Pingtung, Taiwan",
+    "宜蘭": "Yilan, Taiwan",
     "花蓮": "Hualien, Taiwan",
+    "台東": "Taitung, Taiwan",
+    "高雄": "Kaohsiung, Taiwan",
 }
 
 # Fallback hotel data (used when live scraping is blocked / unavailable)
@@ -43,11 +55,68 @@ FALLBACK_HOTELS: dict[str, list[dict]] = {
         {"name": "台北美侖大飯店", "price": "NT$ 3,800/晚起", "rating": "8.5", "address": "台北市中山區民族東路"},
         {"name": "西門町商旅", "price": "NT$ 1,800/晚起", "rating": "8.2", "address": "台北市萬華區西寧南路"},
     ],
+    "新北": [
+        {"name": "淡水福容大飯店", "price": "NT$ 3,800/晚起", "rating": "8.7", "address": "新北市淡水區中正路257號"},
+        {"name": "板橋凱撒大飯店", "price": "NT$ 4,200/晚起", "rating": "8.9", "address": "新北市板橋區縣民大道二段8號"},
+        {"name": "烏來馥蘭朵溫泉度假酒店", "price": "NT$ 5,500/晚起", "rating": "9.1", "address": "新北市烏來區烏來街45號"},
+        {"name": "九份山城旅棧", "price": "NT$ 2,200/晚起", "rating": "8.6", "address": "新北市瑞芳區輕便路"},
+        {"name": "三重商務旅館", "price": "NT$ 1,500/晚起", "rating": "8.0", "address": "新北市三重區"},
+    ],
+    "桃園": [
+        {"name": "桃園大溪威斯汀度假酒店", "price": "NT$ 6,500/晚起", "rating": "9.2", "address": "桃園市大溪區員林路一段"},
+        {"name": "諾富特桃園機場飯店", "price": "NT$ 4,800/晚起", "rating": "8.8", "address": "桃園市大園區航站南路"},
+        {"name": "桃園中正日航國際酒店", "price": "NT$ 3,500/晚起", "rating": "8.6", "address": "桃園市中壢區中正路"},
+        {"name": "石門水庫山林渡假樂園", "price": "NT$ 2,800/晚起", "rating": "8.3", "address": "桃園市龍潭區石門"},
+        {"name": "平鎮商旅", "price": "NT$ 1,600/晚起", "rating": "7.9", "address": "桃園市平鎮區"},
+    ],
     "台中": [
         {"name": "日月千禧酒店", "price": "NT$ 4,500/晚起", "rating": "9.0", "address": "台中市西屯區市政北一路"},
         {"name": "台中金典酒店", "price": "NT$ 3,800/晚起", "rating": "8.7", "address": "台中市西區館前路"},
         {"name": "台中長榮桂冠酒店", "price": "NT$ 5,000/晚起", "rating": "8.9", "address": "台中市西屯區台灣大道二段"},
         {"name": "逢甲商旅", "price": "NT$ 1,600/晚起", "rating": "8.3", "address": "台中市西屯區逢甲路"},
+    ],
+    "基隆": [
+        {"name": "基隆長榮桂冠酒店", "price": "NT$ 3,200/晚起", "rating": "8.8", "address": "基隆市中正區中正路"},
+        {"name": "基隆港灣旅館", "price": "NT$ 1,800/晚起", "rating": "8.2", "address": "基隆市仁愛區忠一路"},
+        {"name": "基隆商務飯店", "price": "NT$ 1,500/晚起", "rating": "7.8", "address": "基隆市信義區"},
+        {"name": "海洋廣場旅館", "price": "NT$ 2,200/晚起", "rating": "8.4", "address": "基隆市中正區"},
+    ],
+    "新竹": [
+        {"name": "新竹老爺大酒店", "price": "NT$ 4,500/晚起", "rating": "9.0", "address": "新竹市東區中華路二段188號"},
+        {"name": "新竹喜來登大飯店", "price": "NT$ 3,800/晚起", "rating": "8.7", "address": "新竹市東區中正路"},
+        {"name": "竹湖山莊", "price": "NT$ 2,500/晚起", "rating": "8.4", "address": "新竹縣橫山鄉"},
+        {"name": "尖石山之雲民宿", "price": "NT$ 2,800/晚起", "rating": "8.8", "address": "新竹縣尖石鄉"},
+    ],
+    "苗栗": [
+        {"name": "苗栗泰安溫泉飯店", "price": "NT$ 3,500/晚起", "rating": "8.6", "address": "苗栗縣泰安鄉錦水村"},
+        {"name": "三義木雕民宿", "price": "NT$ 2,000/晚起", "rating": "8.3", "address": "苗栗縣三義鄉"},
+        {"name": "南庄老街客棧", "price": "NT$ 1,800/晚起", "rating": "8.1", "address": "苗栗縣南庄鄉"},
+        {"name": "大湖草莓農場民宿", "price": "NT$ 2,200/晚起", "rating": "8.5", "address": "苗栗縣大湖鄉"},
+    ],
+    "彰化": [
+        {"name": "彰化長榮飯店", "price": "NT$ 2,800/晚起", "rating": "8.4", "address": "彰化市中山路二段"},
+        {"name": "鹿港民宿老宅", "price": "NT$ 1,800/晚起", "rating": "8.7", "address": "彰化縣鹿港鎮"},
+        {"name": "彰化商旅", "price": "NT$ 1,500/晚起", "rating": "7.9", "address": "彰化市中正路"},
+        {"name": "王功漁港民宿", "price": "NT$ 1,600/晚起", "rating": "8.0", "address": "彰化縣芳苑鄉王功村"},
+    ],
+    "南投": [
+        {"name": "日月潭涵碧樓", "price": "NT$ 12,000/晚起", "rating": "9.5", "address": "南投縣魚池鄉中山路142號"},
+        {"name": "日月潭雲品溫泉酒店", "price": "NT$ 7,500/晚起", "rating": "9.2", "address": "南投縣魚池鄉中山路101號"},
+        {"name": "清境農場觀山景觀民宿", "price": "NT$ 3,500/晚起", "rating": "8.8", "address": "南投縣仁愛鄉大同村"},
+        {"name": "溪頭明山森林會館", "price": "NT$ 4,200/晚起", "rating": "8.6", "address": "南投縣鹿谷鄉內湖村"},
+        {"name": "集集民宿", "price": "NT$ 1,800/晚起", "rating": "8.2", "address": "南投縣集集鎮"},
+    ],
+    "雲林": [
+        {"name": "劍湖山王子大飯店", "price": "NT$ 3,200/晚起", "rating": "8.5", "address": "雲林縣古坑鄉棋盤村"},
+        {"name": "北港民宿", "price": "NT$ 1,500/晚起", "rating": "7.9", "address": "雲林縣北港鎮"},
+        {"name": "古坑咖啡民宿", "price": "NT$ 2,000/晚起", "rating": "8.3", "address": "雲林縣古坑鄉"},
+        {"name": "斗六商旅", "price": "NT$ 1,600/晚起", "rating": "8.0", "address": "雲林縣斗六市"},
+    ],
+    "嘉義": [
+        {"name": "阿里山賓館", "price": "NT$ 5,500/晚起", "rating": "8.9", "address": "嘉義縣阿里山鄉中正村"},
+        {"name": "嘉義耐斯王子大飯店", "price": "NT$ 3,200/晚起", "rating": "8.6", "address": "嘉義市西區世賢路二段"},
+        {"name": "嘉義商旅", "price": "NT$ 1,800/晚起", "rating": "8.1", "address": "嘉義市東區"},
+        {"name": "故宮南院周邊民宿", "price": "NT$ 2,200/晚起", "rating": "8.4", "address": "嘉義縣太保市"},
     ],
     "台南": [
         {"name": "台南晶英酒店", "price": "NT$ 5,500/晚起", "rating": "9.3", "address": "台南市中西區西門路一段"},
@@ -55,17 +124,38 @@ FALLBACK_HOTELS: dict[str, list[dict]] = {
         {"name": "台南富信大飯店", "price": "NT$ 2,800/晚起", "rating": "8.4", "address": "台南市中西區公園路"},
         {"name": "台南永豐棧酒店", "price": "NT$ 3,200/晚起", "rating": "8.6", "address": "台南市南區西門路四段"},
     ],
-    "高雄": [
-        {"name": "高雄漢來大飯店", "price": "NT$ 4,800/晚起", "rating": "9.0", "address": "高雄市前金區成功一路"},
-        {"name": "高雄國賓大飯店", "price": "NT$ 3,500/晚起", "rating": "8.6", "address": "高雄市前金區民生二路"},
-        {"name": "高雄福華大飯店", "price": "NT$ 3,200/晚起", "rating": "8.5", "address": "高雄市苓雅區四維三路"},
-        {"name": "駁二艾尼斯旅店", "price": "NT$ 1,800/晚起", "rating": "8.7", "address": "高雄市鹽埕區"},
+    "屏東": [
+        {"name": "墾丁福華渡假飯店", "price": "NT$ 5,800/晚起", "rating": "9.0", "address": "屏東縣恆春鎮墾丁路2號"},
+        {"name": "凱撒大飯店墾丁", "price": "NT$ 4,500/晚起", "rating": "8.8", "address": "屏東縣恆春鎮墾丁路6號"},
+        {"name": "小琉球民宿", "price": "NT$ 2,200/晚起", "rating": "8.5", "address": "屏東縣琉球鄉"},
+        {"name": "東港海鮮飯店", "price": "NT$ 2,000/晚起", "rating": "8.2", "address": "屏東縣東港鎮"},
+        {"name": "四重溪溫泉山莊", "price": "NT$ 2,800/晚起", "rating": "8.4", "address": "屏東縣車城鄉四重溪"},
+    ],
+    "宜蘭": [
+        {"name": "礁溪長榮鳳凰酒店", "price": "NT$ 5,200/晚起", "rating": "9.1", "address": "宜蘭縣礁溪鄉健康路"},
+        {"name": "礁溪老爺酒店", "price": "NT$ 6,800/晚起", "rating": "9.3", "address": "宜蘭縣礁溪鄉五峰路69號"},
+        {"name": "太平山翠峰湖山屋", "price": "NT$ 3,200/晚起", "rating": "8.7", "address": "宜蘭縣大同鄉"},
+        {"name": "羅東商旅", "price": "NT$ 1,800/晚起", "rating": "8.2", "address": "宜蘭縣羅東鎮"},
+        {"name": "蘇澳冷泉民宿", "price": "NT$ 2,000/晚起", "rating": "8.4", "address": "宜蘭縣蘇澳鎮"},
     ],
     "花蓮": [
         {"name": "花蓮理想大地度假村", "price": "NT$ 6,500/晚起", "rating": "9.1", "address": "花蓮縣壽豐鄉理想路1號"},
         {"name": "花蓮翰品酒店", "price": "NT$ 3,800/晚起", "rating": "8.8", "address": "花蓮市國聯一路51號"},
         {"name": "花蓮美侖大飯店", "price": "NT$ 4,200/晚起", "rating": "8.7", "address": "花蓮市林森路1號"},
         {"name": "花蓮統帥大飯店", "price": "NT$ 2,500/晚起", "rating": "8.3", "address": "花蓮市中山路2號"},
+    ],
+    "台東": [
+        {"name": "知本老爺大酒店", "price": "NT$ 4,800/晚起", "rating": "9.0", "address": "台東縣卑南鄉溫泉村"},
+        {"name": "台東娜路彎大酒店", "price": "NT$ 5,200/晚起", "rating": "8.9", "address": "台東市中興路一段"},
+        {"name": "綠島朝日溫泉民宿", "price": "NT$ 3,500/晚起", "rating": "8.7", "address": "台東縣綠島鄉"},
+        {"name": "蘭嶼原住民民宿", "price": "NT$ 2,800/晚起", "rating": "8.6", "address": "台東縣蘭嶼鄉"},
+        {"name": "池上牧野渡假村", "price": "NT$ 3,800/晚起", "rating": "8.8", "address": "台東縣池上鄉"},
+    ],
+    "高雄": [
+        {"name": "高雄漢來大飯店", "price": "NT$ 4,800/晚起", "rating": "9.0", "address": "高雄市前金區成功一路"},
+        {"name": "高雄國賓大飯店", "price": "NT$ 3,500/晚起", "rating": "8.6", "address": "高雄市前金區民生二路"},
+        {"name": "高雄福華大飯店", "price": "NT$ 3,200/晚起", "rating": "8.5", "address": "高雄市苓雅區四維三路"},
+        {"name": "駁二艾尼斯旅店", "price": "NT$ 1,800/晚起", "rating": "8.7", "address": "高雄市鹽埕區"},
     ],
 }
 
@@ -83,7 +173,8 @@ class HotelScraper(BaseScraper):
     Parameters
     ----------
     city : str
-        Target city (台北、台中、台南、高雄、花蓮).
+        Target city (台北、新北、桃園、台中、基隆、新竹、苗栗、彰化、南投、
+        雲林、嘉義、台南、屏東、宜蘭、花蓮、台東、高雄).
     check_in : str
         Check-in date in ``YYYY-MM-DD`` format.
     check_out : str
