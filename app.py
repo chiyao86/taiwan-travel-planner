@@ -6,7 +6,40 @@ itinerary, attraction cards, hotel suggestions and navigation links.
 """
 import datetime
 import os
+import subprocess
 import sys
+
+# ---------------------------------------------------------------------------
+# Playwright browser installation
+# Hugging Face Spaces does not run `playwright install` automatically after
+# pip-installing the package.  We install Chromium once at cold-start so
+# the live-scraping code works.
+#
+# /tmp is used for the flag file because it persists across Streamlit page
+# reruns within the same container session (avoiding repeated installs) but
+# is cleared when the HF Spaces container restarts, which ensures the
+# browser is always freshly installed on each new deployment.
+# ---------------------------------------------------------------------------
+_PW_FLAG = "/tmp/.playwright_chromium_installed"
+if not os.path.exists(_PW_FLAG):
+    try:
+        _result = subprocess.run(
+            [sys.executable, "-m", "playwright", "install", "--with-deps", "chromium"],
+            capture_output=True,
+            text=True,
+            timeout=300,
+        )
+        if _result.returncode == 0:
+            with open(_PW_FLAG, "w") as _f:
+                _f.write("ok")
+        else:
+            # Write stderr to /tmp so it can be inspected if needed
+            print(
+                f"[playwright install] exit {_result.returncode}:\n{_result.stderr}",
+                file=sys.stderr,
+            )
+    except Exception as _exc:
+        print(f"[playwright install] unexpected error: {_exc}", file=sys.stderr)
 
 import streamlit as st
 
