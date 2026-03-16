@@ -73,7 +73,7 @@ def fetch_travel_plan(
         groq_api_key=groq_api_key,
         headless=True,
         max_attractions=min(days * ATTRACTIONS_PER_DAY, MAX_ATTRACTIONS_CAP),
-        max_hotels=5,
+        max_hotels=10,
     )
     return manager.create_plan(
         city=city,
