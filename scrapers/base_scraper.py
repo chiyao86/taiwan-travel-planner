@@ -39,6 +39,7 @@ class Hotel:
     name: str
     price: str = ""
     rating: str = ""
+    price_rating: str = ""   # cost level: "$" / "$$" / "$$$"
     address: str = ""
     city: str = ""
     image_url: str = ""

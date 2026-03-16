@@ -73,7 +73,7 @@ def fetch_travel_plan(
         groq_api_key=groq_api_key,
         headless=True,
         max_attractions=min(days * ATTRACTIONS_PER_DAY, MAX_ATTRACTIONS_CAP),
-        max_hotels=5,
+        max_hotels=12,
     )
     return manager.create_plan(
         city=city,
@@ -83,7 +83,6 @@ def fetch_travel_plan(
         check_in=check_in,
         check_out=check_out,
     )
-
 
 # ---------------------------------------------------------------------------
 # Sidebar – user settings
@@ -215,10 +214,15 @@ if generate_btn:
             cols = st.columns(min(len(plan.hotels), 3))
             for idx, hotel in enumerate(plan.hotels):
                 with cols[idx % 3]:
+                    price_badge = (
+                        f'&nbsp;<span title="價格評分">{hotel.price_rating}</span>'
+                        if hotel.price_rating
+                        else ""
+                    )
                     st.markdown(
                         f'<div class="hotel-card">'
                         f"<b>{hotel.name}</b><br>"
-                        f"💰 {hotel.price}<br>"
+                        f"💰 {hotel.price}{price_badge}<br>"
                         f"⭐ 評分：{hotel.rating}<br>"
                         f"{'📍 ' + hotel.address if hotel.address else ''}"
                         f"</div>",
@@ -258,7 +262,7 @@ else:
 | ---- | ---- |
 | 🕷️ 動態爬蟲 | 使用 Playwright 爬取台灣各縣市最新景點 |
 | 🤖 AI 行程 | Groq Llama 3.3 生成個性化 Markdown 行程 |
-| 🏨 住宿推薦 | 從 Booking.com 爬取最新飯店資訊 |
+| 🏨 住宿推薦 | 從 Booking.com 爬取最新飯店資訊，含價格評分（$/$$/$$$） |
 | 🧭 地圖導航 | 一鍵生成 Google Maps 路線 |
 | ⚡ 快取優化 | 1 小時結果快取，避免重複爬取 |
 
