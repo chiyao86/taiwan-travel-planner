@@ -1,6 +1,6 @@
 """TravelPlanner – wraps Groq SDK to generate AI travel itineraries.
 
-Uses the Llama 3 model served through Groq's API to produce rich,
+Uses the Llama 3.3 model served through Groq's API to produce rich,
 Markdown-formatted itineraries from a list of attractions and hotels.
 """
 import os
@@ -16,7 +16,7 @@ except ImportError:
     _GROQ_AVAILABLE = False
 
 
-MODEL = "llama3-70b-8192"
+MODEL = "llama-3.3-70b-versatile"
 _MAX_HOTELS_IN_TABLE = 3  # number of hotels shown in the fallback itinerary table
 
 _SYSTEM_PROMPT = """你是一位專業的台灣旅遊規劃師，擅長根據景點資訊生成詳細、實用的中文旅遊行程。
@@ -29,7 +29,7 @@ _SYSTEM_PROMPT = """你是一位專業的台灣旅遊規劃師，擅長根據景
 
 
 class TravelPlanner:
-    """AI-powered itinerary generator using Groq + Llama 3.
+    """AI-powered itinerary generator using Groq + Llama 3.3.
 
     Parameters
     ----------
