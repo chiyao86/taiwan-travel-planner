@@ -8,6 +8,7 @@ import datetime
 import os
 import subprocess
 import sys
+import tempfile
 
 # ---------------------------------------------------------------------------
 # Playwright browser installation
@@ -15,18 +16,22 @@ import sys
 # pip-installing the package.  We install Chromium once at cold-start so
 # the live-scraping code works.
 #
-# /tmp is used for the flag file because it persists across Streamlit page
-# reruns within the same container session (avoiding repeated installs) but
-# is cleared when the HF Spaces container restarts, which ensures the
-# browser is always freshly installed on each new deployment.
+# The system temp directory is used for the flag file because it persists
+# across Streamlit page reruns within the same container session (avoiding
+# repeated installs) and is available on all platforms (Linux, macOS,
+# Windows).  On HF Spaces the temp dir is cleared on container restart,
+# which ensures the browser is always freshly installed on each new
+# deployment.
 # ---------------------------------------------------------------------------
-_PW_FLAG = "/tmp/.playwright_chromium_installed"
+_PW_FLAG = os.path.join(tempfile.gettempdir(), ".playwright_chromium_installed")
 if not os.path.exists(_PW_FLAG):
     try:
         _result = subprocess.run(
             [sys.executable, "-m", "playwright", "install", "--with-deps", "chromium"],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=300,
         )
         if _result.returncode == 0:
